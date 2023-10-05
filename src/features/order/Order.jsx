@@ -1,5 +1,5 @@
 import { getOrder } from '../../services/apiRestaurant';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useFetcher } from 'react-router-dom';
 import OrderItem from './OrderItem';
 // Test ID: IIDSAT
 
@@ -8,6 +8,8 @@ import {
   formatCurrency,
   formatDate,
 } from '../../utils/helpers';
+import { useEffect } from 'react';
+import UpdateOrder from './UpdateOrder';
 
 const order = {
   id: 'ABCDEF',
@@ -57,6 +59,16 @@ function Order() {
   } = useLoaderData();
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    // just like normal navigation of router, fetcher also have its state
+    if (!fetcher.data && fetcher.state === 'idle') {
+      console.log('fetching data');
+      fetcher.load('/menu');
+    }
+  }, [fetcher]);
+
   return (
     <div className="space-y-8 px-4 py-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -92,9 +104,17 @@ function Order() {
           (Estimated delivery: {formatDate(estimatedDelivery)})
         </p>
       </div>
-      <ul className=' divide-y divide-stone-200 border-t border-b'>
+      <ul className=" divide-y divide-stone-200 border-b border-t">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            item={item}
+            key={item.pizzaId}
+            isLoadingIngredients={fetcher.state === 'loading'}
+            ingredients={
+              fetcher.data?.find((el) => el.id === item.pizzaId)?.ingredients ??
+              []
+            }
+          />
         ))}
       </ul>
       <div className="space-y-2 bg-stone-200 px-6 py-5">
@@ -110,6 +130,7 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
