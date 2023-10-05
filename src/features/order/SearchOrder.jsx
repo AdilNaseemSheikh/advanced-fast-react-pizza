@@ -6,7 +6,7 @@ function SearchOrder() {
   const navigate = useNavigate();
   function handleSubmit(e) {
     e.preventDefault();
-    navigate(`/order/${query}`);
+    navigate(`order/${query}`);
     setQuery('');
   }
   return (
@@ -14,8 +14,7 @@ function SearchOrder() {
       <input
         type="text"
         placeholder="Search Order"
-        // value={query}
-        value='WT1SB2'
+        value={query}
         onChange={(e) => setQuery(e.target.value)}
         className=" placeholder: w-28 rounded-full bg-yellow-100
         px-4 py-2 text-sm text-stone-400 transition-all duration-300
